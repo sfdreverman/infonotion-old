@@ -1,0 +1,10 @@
+{
+	"folders": [
+		{
+			"path": "C:\\dev\\PoC"
+		}
+	],
+	"settings": {
+		"github.gitCommand": "C:\\Program Files\\Git\\bin\\Git.exe"
+	}
+}
