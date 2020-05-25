@@ -20,9 +20,8 @@ Preparations
 Perparations for the code
 ---
 - Clone the repo to a folder
-- Open a command-line window 
-- Go to the folder of the pulled repo
-- Build the webapp (type "compose install")
+- Open a command-line window in the folder of the cloned repo
+- Build the webapp (type "composer install")
 - Run the webapp (type "php bin/console server:run")
 
 Setting up the Database contents
