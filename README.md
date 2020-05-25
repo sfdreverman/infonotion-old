@@ -15,7 +15,7 @@ Preparations
 - Install Php and make it findable in your repo folder
 - Install Neo4j 3.5.1
 - Start Neo4j
-- Go to: localhost:7474/browser and set the admin user (neo4j) password to "test"
+- Go to: http://localhost:7474/browser/ and set the admin user (neo4j) password to "test"
 
 Perparations for the code
 ---
