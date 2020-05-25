@@ -1,0 +1,18 @@
+			window.onload = function()
+			{		
+						elem = document.getElementById("firstItem");
+						if (elem != null) {
+							elem.id=elem.id+'been_here';
+							elem.click();
+						}
+			
+				{% if loadElementId is defined %}
+					{% if loadElementId == '' %}
+						var elem = document.getElementsByName("firstLabel")[0];
+					{% else %}
+						var elem = document.getElementById("{{ loadElementId }}");
+					{%endif%}
+					elem.className = "btn btn-primary active";
+					elem.click();				
+				{% endif%}
+			}

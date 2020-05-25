@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+
+<html>
+    <head>
+        <meta charset="UTF-8" />
+        <title>{% block title %}Welcome!{% endblock %}</title>
+        {% block stylesheets %}		
+		{% endblock %}
+		<link rel="stylesheet" href="/css/sidebar.css">
+		<link rel="stylesheet" href="/css/main.css">	
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>	
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.js"></script>
+        <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}" />
+    </head>
+    <body>
+		<div id="total">
+		<div role="navigation" class="navbar navbar-default navbar-static-top">
+			<div>
+				<div class="row">
+					<div class="navbar-header col-sm-6 col-md-6">
+						<div class="logo-well">
+							<a href='/'>
+								<!--<img src="/images/meesterbitcoin/beeldmerk.svg" alt="MeesterBitcoin" id="logo">-->
+								<img src="/images/infonotion/logo40.png" alt="InfoNotion" id="logo">
+							</a>
+						</div>
+						<div class="navbar-brand">
+							<a class="brand" href="/"><b>InfoNotion - {% if subtit is defined %}{{ subtit }}{%endif%}</b></a>
+						</div>
+					</div>	
+				</div>
+			</div>
+		</div>
+        <!-- Page Content -->
+		<div id="sidebar" class="sidebar">
+			<div class="well">
+				{% block sidebar %}{% endblock %}
+			</div>
+		</div>		
+		<div id="main" class= "main">
+			 <div class="well">
+				{% block body %}{% endblock %}
+			 </div>   
+		</div>				
+        {% block javascripts %}
+		{% endblock %}
+		</div>		
+    </body>
+</html>

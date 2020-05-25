@@ -1,0 +1,59 @@
+{% if theResult['entity'] is defined %}
+{% set entity = theResult['entity'] %}
+
+<div class="panel-heading" id="title">
+	<span hidden id="ItemTableID"></span>
+	<span class="caption" id="ItemMetaType">{{entity['in_metaType']}}</span><br>
+	<span class="h3 caption" id="ItemName">{{ entity['name']|nl2br }}</span>
+	{% if theView['canDelete'] %}
+		<a id="deleteLink" class="btn btn-primary btn-sm pull-right" href="/dataeditor/delete/{{entity['domain']}}/{{entity['in_metaType']}}/{{ entity['in_id'] }}">Delete</a>
+	{% endif %}
+	{% if theView['canEdit'] %}
+		<a id="editLink" class="btn btn-primary btn-sm pull-right" href="/dataeditor/edit/{{entity['domain']}}/{{entity['in_metaType']}}/{{ entity['in_id'] }}">Edit</a>
+	{% endif %}
+</div>
+
+<div hidden id='domainLabel'> {{ entity['domain']|nl2br }} </div>
+<table class="table table-striped table-hover">
+	<tbody id="details">		
+		<tr hidden><th scope='row'>Name</th><td id="instanceName">{{ entity['name'] }}</td></tr>
+		<tr hidden><th scope='row'>Type</th><td id="instanceMetaType">{{entity['in_metaType']}}</td></tr>
+		<tr><th scope='row'>ID</th><td id="instanceId">{{ entity['in_id'] }}</td></tr>
+
+		{% for key,item in entity %} 
+		  {% if key not in ['name','metaType','in_metaType','in_id','domain'] %}
+			{% if key ends with 'URL' %}
+				{% if key starts with 'logo' or key starts with 'image' %}
+					<tr><th scope='row'>{{ key }} </th><td> <img src="{{ item }}"> </td></tr>
+				{% else %}
+					<tr><th scope='row'>{{ key }} </th><td> <a href="{{ item }}">{{ item }}</a></td></tr>
+				{% endif %}
+			{% else %}
+				{% if item is same as(false) %}
+					{% set val = 'No' %}
+				{% else %}
+					{% if item is same as(true) %}
+						{% set val = 'Yes' %}
+					{% else %}
+						{% set val = item %}
+					{% endif %}		
+				{% endif %}
+				<tr><th scope='row'>{{ key }} </th><td> {{ val|raw|nl2br }} </td></tr>
+			{% endif %}
+		  {% endif %}
+		{% endfor %}
+	</tbody>
+</table>
+<div class="btn-group-horizontal" id="QueryBtnGroup" data-toggle="buttons">	
+		{% set beenHere = false %}
+		{% for key,item in theResult %}
+			{% if (key matches '/^\\d+$/') %}
+				 <label class="btn btn-primary wrap pull-left" {% if(not beenHere) %}id="firstItem"{% endif %} name="{{item['query']['name']}}" onclick="showView('{{domain}}','{{metaType}}','{{entity['in_id']}}','{{item['query']['in_id']}}','Curr_NOCLICK',-1)"><input type="radio" name="queryoptions">{{item['query']['name']}}</input></label>
+				 {% set beenHere = true %}
+			{% endif %}
+		{% endfor %}
+</div>
+{%else%}
+Something went wrong:
+{{dump() }}
+{%endif%}

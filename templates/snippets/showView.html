@@ -1,0 +1,26 @@
+			function GetElementInsideContainer(containerID, childID) {
+				var parent = $("div#"+containerID);
+				var elm = parent.find("#"+childID);
+				return elm;
+			}
+			
+			function showView(domain, metaType, entityId, viewID, divpanelID, pageNum)
+			{
+				$.get('/j_htmlview/'+domain+'/'+metaType+'/'+viewID+'/'+entityId+'/'+pageNum,
+                    function (data) {						
+                        if (!data || data.length == 0) return;
+						
+						var t = $("div#"+divpanelID).empty();
+						$(data['response']).appendTo(t);
+						
+						if (!divpanelID.endsWith('_NOCLICK'))
+						{
+							elem = GetElementInsideContainer(divpanelID,"firstItem");
+							if (elem != null) {
+								elem.id=elem.id+'been_here';
+								elem.click();
+							}
+						}
+                    }, "json");
+                return false;				
+			}

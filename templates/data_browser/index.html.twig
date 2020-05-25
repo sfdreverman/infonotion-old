@@ -1,0 +1,27 @@
+{% extends 'base.html.twig' %}
+
+{% block sidebar %}
+	Data browser<br>
+	<div class="btn-group-vertical">	
+		<a class="btn btn-primary" href="/"><<</a>
+	</div>
+	<br>
+	Domains<br>
+	<div class="btn-group-vertical">	
+	{% for item in domains %} 
+		<a class="btn btn-primary" href="/frameN/databrowser/{{ item.get('m').value('name') }}">{{ item.get('m').value('name') }}</a>
+	{% endfor %}	
+	
+	</div>	
+	
+	<br>
+	<!-- <a id="addLink" class="btn btn-primary btn-sm" href="/dataeditor/edit/FunctionalType/Domain">Add Domain</a> -->
+{% endblock %}
+
+{% block body %}
+	{% include 'default/pocinfo.html' %}
+{% endblock %}
+
+{% block stylesheets %}
+
+{% endblock %}

@@ -1,0 +1,70 @@
+<div class="panel-heading"><span class="caption">{{ metaType }}</span> <input type="text" id="tableSearch" name="tableSearch" class="form-inline pull-right"></input><span class="caption pull-right">Search : </span> </div>
+<table id="table" class="table table-striped table-hover">
+	<thead id="tablequeryheaders">
+		{% for value in theResult['keys'] %}
+			{% if not (value ends with '_INID') %}
+				<th class='strong caption'>{{ value }}</th>
+			{% endif %}
+		{% endfor %}
+	</thead>
+	<tbody id="tablequerydata">	
+		{% set beenHere = false %}
+		{% for key,item in theResult %}
+			<tr>
+			{% if (key matches '/^\\d+$/') %}
+				{% for key,value in item %}
+					{% if (theResult['keys'][loop.index0] ends with '_INID') %}
+						{% set saved_INID = value %}
+						{% if theView['behavior'][loop.index0] is defined %}
+							{% set saved_theType = theView['behavior'][loop.index0][0] %}
+							{% if saved_theType == 'metaType' %}
+								{% set saved_theType = metaType %}
+							{% endif %}
+							{% set saved_theView = theView['behavior'][loop.index0][1] %}
+						{% else %}
+							{% set saved_theType = metaType %}
+							{% set saved_theView = 'View5d923c3fa9bb12.15795175' %}
+						{% endif %}
+					{% else %}
+						{% if loop.index == 1 %}
+							<th scope='row'>{{ value|nl2br }}</th>
+						{% else %}
+								{% if value == "" %}
+									<td onClick="">(empty)</td>
+								{% else %}
+									<td {% if(not beenHere) %}id="firstItem"{% endif %} onClick="TableClick(this, '{{domain}}','{{saved_theType}}', '{{ saved_INID }}', '{{saved_theView}}','details' )">{{ value|nl2br }}</td>
+									{% set beenHere = true %}
+								{% endif %}
+						{% endif %}
+					{% endif %}
+				{% endfor %}
+			{% endif %}			
+			</tr>
+		{% endfor %}
+	</tbody>
+</table>
+
+<script>
+		var timeout = null;
+		function updateSearchString(e) {		
+					clearTimeout(timeout);
+					timeout = setTimeout(function () {
+						showEntityList("{{ domain }}",e.target.name,document.getElementById('pgNum').innerHTML,e.target.value);
+					}, 125);			
+
+		}
+		
+		function TableClick(myobj, domain, name, instID, viewID,divID)
+		{
+			$(myobj).closest('table').find('td').not(this).removeClass('selected');      
+			$(myobj).closest('table').find('label').not(this).removeClass('selected'); 
+			$(myobj).parent().siblings().removeClass('highlight');
+			$(myobj).parent().toggleClass('highlight');
+			$(myobj).toggleClass('selected');
+			showView(domain, name,instID,viewID,divID,-1);
+		}
+		
+		function showEntityList(domain, name, page, searchstring) {
+					showView(domain, name,'empty','View5d98dbc439a5a4.32197708','newtable',page);
+		}
+</script>

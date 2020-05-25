@@ -1,0 +1,24 @@
+function panelClick(mypan)
+{
+	var lp = document.getElementById('leftpanel');
+	var mp = document.getElementById('middlepanel');
+	var rp = document.getElementById('rightpanel');
+	$(lp).removeClass();
+	$(mp).removeClass();
+	$(rp).removeClass();
+	if (mypan=='left') {
+		$(lp).addClass('col-md-5 rpadding');
+		$(mp).addClass('col-md-4 rpadding');
+		$(rp).addClass('col-md-3 rpadding');
+	} else
+	if (mypan=='middle') {
+		$(lp).addClass('col-md-3 rpadding');
+		$(mp).addClass('col-md-6 rpadding');
+		$(rp).addClass('col-md-3 rpadding');
+	} else
+	if (mypan=='right') {
+		$(lp).addClass('col-md-3 rpadding');
+		$(mp).addClass('col-md-4 rpadding');
+		$(rp).addClass('col-md-5 rpadding');
+	}
+}

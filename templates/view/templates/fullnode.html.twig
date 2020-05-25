@@ -1,0 +1,31 @@
+{% include 'view/templates/node.html.twig'%}
+
+<div id="relations" class="panel panel-default">
+<div class="panel-heading" id="title"><span class="caption" id="RelationTableName">Relationships</span>
+</div>
+<table class="table table-striped table-hover">
+	<tbody id="relations">	
+		{% set hasOneRel = false %}
+		{% for key,items in theResult %}
+			{% if items['relationName'] is defined and items['relationName'] is not null %}
+				<tr><th scope='row'>{{ items['relationName'] }}<br> <small>{% if items['fromEntity']==true %}->{%else%}<-{%endif%}({{ items['RelationNodeMetaType']}})</small>
+				</th>
+				{% set hasOneRel = true %}
+				{% set hint = ""%}				
+				{% for key,val in items['relationNode'] %}
+						{% if val is not iterable %}
+							{% set hint = hint ~ key ~ ": " ~ val ~ "\n" %}
+						{% endif %}
+				{% endfor %}
+				{% if items['relationNode'] is not null %}
+					<td title="{{ hint }}">{{ items['relationNode']['name'] }}</td>
+				{% endif %}
+				</tr>
+			{% endif %}
+		{% endfor %}
+		{% if not hasOneRel %}
+			<tr><th scope='row'>None</th></tr>
+		{% endif %}
+	</tbody>
+</table>	
+</div>

@@ -1,0 +1,18 @@
+	Subject ({{theResult|length}})<br>
+	<div class="col-md-12 nopadding">
+		<div class="btn-group-vertical nopadding" id="buttongroup" data-toggle="buttons">
+			<div class="btn-group-vertical nopadding" id="buttongroup" data-toggle="buttons">	
+				{% for key,item in theResult %}
+					{% if (key matches '/^\\d+$/') %}
+						{% for key,value in item %}
+							{% if (key==0) %}
+								<label class="btn btn-primary" {% if(loop.index == 1) %}name="firstLabel"{% endif %} id="{{ value }}" onclick="showView('{{ domain }}','{{ value }}','empty','View5d98dbc439a5a4.32197708','newtable',0);">
+									<input type="radio" name="options"> {{ value }} </input>
+								</label>
+							{% endif %}
+						{% endfor %}
+					{% endif %}						
+				{% endfor %}			
+			</div>
+		</div>
+	</div>

@@ -1,0 +1,36 @@
+{% extends 'base.html.twig' %}
+{% block sidebar %}
+	<a class="btn btn-primary btn-block" href="/databrowser/"><<</a><br>
+	{{ ViewContent|raw }}
+	<br> <br>
+	{% include 'data_editor/type/addtypebutton.html' %}
+
+	{% include 'data_editor/type/removetypebutton.html' %}
+	
+{% endblock %}
+
+{% block body %}
+
+	<div class="row">
+		<div class="col-md-6 nopadding">
+			<div class="panel panel-default">
+				<div id="newtable" class="panel panel-default noborder"></div>				
+			</div>	
+
+		</div>
+		<div class="col-md-5">
+			<div class="panel panel-default">
+				<div id="details" class="panel panel-default noborder"></div>				
+			</div>						
+		</div>
+	</div>
+	
+    <script>	
+			{% include 'snippets/showView.html' %}
+			
+			{% set loadElementId = metaType %}
+			
+			{% include 'snippets/windowOnLoad.Entity.html' %}
+    </script>	
+
+{% endblock %}

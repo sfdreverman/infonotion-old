@@ -1,0 +1,23 @@
+{% extends 'base.html.twig' %}
+
+{% block sidebar %}
+	Main Menu
+	<br>
+	<div class="btn-group-vertical">
+		<a class="btn btn-primary" href="/databrowser">Data Browser</a>
+		<!-- <a class="btn btn-primary" href="frameN/View/F1/Season/empty/")"> -->
+		</a>		
+	</div>
+	<br>
+	<script>
+				{% include 'snippets/showView.html' %}
+	</script>
+{% endblock %}
+
+{% block body %}
+	{% include 'default/pocinfo.html' %}
+{% endblock %}
+
+{% block stylesheets %}
+
+{% endblock %}

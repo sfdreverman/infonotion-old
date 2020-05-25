@@ -1,0 +1,107 @@
+{% extends "base.html.twig" %}
+
+{% block sidebar %}
+	Menu
+	<div class="btn-group-vertical">
+		<a class="btn btn-primary" href="/databrowser/list/{{domain}}"><<</a>
+	</div>
+{% endblock %}
+
+{% block body %}
+	<form name="addtype" method="POST">
+		<h3>New type</h3>
+
+		<div class="input-group">
+			<span class="input-group-addon">Name</span>
+			<input type="text" class="form-control" name="typename">
+			<span class="input-group-btn">
+				<button class="btn btn-secondary" type="submit" id="submit">Save</button>
+			</span>
+		</div>
+		<br>
+		<h4>Attributes</h4>
+		<div class="input-group">
+			<div id="attrplaceholder">
+				<div class="input-group">
+					<span class="input-group-addon">Name</span>
+					<input class="form-control" type="text" name="dummy1" value="Name" readonly>
+					<span class="input-group-addon">Type</span>
+					<input class="form-control" type="text" name="dummy2" value="text" readonly>
+				</div>
+				<div class="input-group">
+					<span class="input-group-addon">Name</span>
+					<input class="form-control" type="text" name="dummy3" value="Description" readonly>
+					<span class="input-group-addon">Type</span>
+					<input class="form-control" type="text" name="dummy4" value="text" readonly>
+				</div><br>
+				<!-- here's where the attributes appear. All instances have a name -->				
+				<button class="btn btn-secondary" type="button" id="addattr">Add Attribute</button>				
+			</div>
+		</div>
+		<h4>Lookup Attributes</h4>
+		<div class="input-group">
+			<div id="loattr_placeholder">
+				<button class="btn btn-secondary" type="button" id="addloattr">Add Lookup Attribute</button>(Attribute that is filled with instance of a type)
+				<!-- here's where the lookup attributes appear -->
+				
+			</div>
+		</div>	
+		<h4>Relations</h4>
+		<div class="input-group">
+			<div id="relplaceholder">
+				<button class="btn btn-secondary" type="button" id="addrel">Add Relation</button>
+				<!-- here's where the relations appear -->
+				
+			</div>
+		</div>
+		
+			<script>
+				$( document ).ready(function() {
+					//when the Add Field button is clicked
+					$("#addattr").click(function (e) {
+					//Append a new row of code to the "#items" div
+					$("#attrplaceholder").append('<div class="input-group"><span class="input-group-addon">Name</span><input class="form-control" type="text" name="attr_name[]"><span class="input-group-addon">Type</span><select class="form-control" name="attr_type[]">{% include 'data_editor/type/attrtypeoptions.html' %}</select><span class="input-group-btn"><button type="button" class="btn btn-secondary delete">Delete</button></span></div>');
+					});
+				
+				
+					$("#addrel").click(function (e) {
+					//Append a new row of code to the "#items" div
+					
+					var reltoadd = '<div class="container"> <div class="input-group">';				
+					reltoadd+='<span class="input-group-addon">Name</span><input class="form-control" type="text" name="rel_name[]">';
+					reltoadd+='<span class="input-group-addon">to Type</span> <select class="form-control" id="relselect" name="rel_type[]">	{% for listitem in listitems %} <option value="{{ listitem.value('id') }}"> {{ listitem.value('name') }} </option>	{% endfor %} </select>';
+					reltoadd+='<span class="input-group-addon">IsCompositional</span><select class="form-control" id="relcompose" name="rel_comp[]"><option value="false">No</option><option value="true">Yes</option></select>';
+					reltoadd+='<span class="input-group-addon">Multiple Answers</span><select class="form-control" id="relmulti" name="rel_multi[]"><option value="false">No</option><option value="true">Yes</option></select>';
+					reltoadd+='<span class="input-group-btn"><button type="button" class="btn btn-secondary deleteRel">Delete</button></span></div><button class="btn btn-secondary" type="button" id="addrelattr">Add Relation Attribute</button><div class="input-group"><span class="input-group-addon">Attributes</span><span class="input-group-btn"></span><div id="attrrelplaceholder"></div></div><hr/>';
+					$("#relplaceholder").append(reltoadd+'</div>');
+					});
+
+					$("#addloattr").click(function (e) {
+					//Append a new row of code to the "#items" div
+					
+					var reltoadd = '<div class="container"> <div class="input-group">';				
+					reltoadd+='<span class="input-group-addon">Name</span><input class="form-control" type="text" name="loattr_name[]">';
+					reltoadd+='<span class="input-group-addon">values from Type</span> <select class="form-control" id="loattr_relselect" name="loattr_type[]">	{% for listitem in listitems %} <option value="{{ listitem.value('id') }}"> {{ listitem.value('name') }} </option>	{% endfor %} </select>';
+					reltoadd+='<span class="input-group-btn"><button type="button" class="btn btn-secondary deleteRel">Delete</button></span></div>';
+					$("#loattr_placeholder").append(reltoadd+'</div>');
+					});					
+					
+					$("body").on("click", "#addrelattr", function (e) {
+					//Append a new row of code to the "#items" div
+					$(this).parent().find("div#attrrelplaceholder").append('<div class="input-group"><span class="input-group-addon">Name</span><input class="form-control" type="text" name="rel_name[][]"><span class="input-group-addon">Type</span><select class="form-control" name="rel_type[][]">{% include 'data_editor/type/attrtypeoptions.html' %}</select><span class="input-group-btn"><button type="button" class="btn btn-secondary delete">Delete</button></span></div>');
+					
+					});
+					
+					$("body").on("click", ".delete", function (e) {
+						$(this).parent().parent().remove();
+					});
+					
+					$("body").on("click", ".deleteRel", function (e) {
+						$(this).parent().parent().parent().remove();
+					});
+				});
+			</script>
+		</div>
+	</form>
+    
+{% endblock %}

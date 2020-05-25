@@ -1,0 +1,11 @@
+neo4j:
+  connections:
+    default:
+      scheme: bolt # default (must be either "http" or "bolt")
+      host: 127.0.0.1 # default bolt://hobby-ebpgchoehdpbgbkemnkakgal.dbs.graphenedb.com:24786
+      port: 7687 # optional, will be set to the proper driver's default port if not provided
+      username: neo4j # default IFEtest
+      password: test # default b.tnoRBkAysVqH.vB1qo3pAPCP5Y4L7
+  clients:
+    default:
+      connections: [default]  

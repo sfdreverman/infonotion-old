@@ -1,0 +1,72 @@
+{% extends 'base.html.twig' %}
+
+{% block sidebar %}
+
+{% endblock %}
+
+{% block body %}
+	<div class="row">
+		<div id="leftpanel" class="col-md-5 rpadding">
+			<div class="panel panel-default">
+				<div role="navigation" id="PrevQueryName" class="panel-heading"  onClick="panelClick('left')">
+				<strong>List of </strong>
+				</div>
+			</div>			
+			<div class="panel panel-default">
+				<div id="Prev" class="panel panel-default noborder">
+					{{ ViewContent|raw }}
+				</div>				
+			</div>					
+		</div>	
+		<div id="middlepanel" class="col-md-4 rpadding">
+			<div class="panel panel-default">
+				<div id="details" class="panel panel-default noborder" onClick="panelClick('middle')">
+				</div>
+			</div>
+		</div>		
+		<div id="rightpanel" class="col-md-3 rpadding">
+			<div class="panel panel-default"  onClick="panelClick('right')">
+				<div id="Curr_NOCLICK" class="panel panel-default noborder">
+				</div>	
+			</div>
+		</div>	
+	</div>
+
+	
+    <script>
+	
+		function moveTable(from, to) {
+			var fromData = $("div#Curr_NOCLICK");
+			var toData = $("div#Prev");
+			toData.empty();
+			toData.innerHTML=fromData.innerHTML;
+			fromData.innerHTML="";
+		}
+		
+		// Clicks in Table cells
+		
+	    function TableClick(myobj, domain, name, instID, viewID,divID) {
+			$(myobj).closest('table').find('td').not(this).removeClass('selected');      
+			$(myobj).closest('table').find('label').not(this).removeClass('selected'); 
+			$(myobj).parent().siblings().removeClass('highlight');
+			$(myobj).parent().toggleClass('highlight');
+			$(myobj).toggleClass('selected');
+			
+			if (divID=="Curr_NOCLICK") {
+				moveTable("Curr_NOCLICK","Prev");
+				elem = $('#PrevQueryName')[0];
+				qname = $('#QueryBtnGroup label.active')[0].innerText;
+				elem.innerHTML = '<strong>'+qname+ '</strong> ' + document.getElementById('ItemName').innerHTML;
+			}
+			showView(domain, name, instID, 'View5db2cc20317699.42818335','details', -1);
+		}		
+	
+			{% include 'snippets/panelclick.html' %}
+	
+			{% include 'snippets/showView.html' %}
+			
+			{% include 'snippets/windowOnLoad.Entity.html' %}
+    </script>	
+
+
+{% endblock %}
