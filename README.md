@@ -19,7 +19,7 @@ Preparations
 
 Perparations for the code
 ---
-- Pull the repo to a folder
+- Clone the repo to a folder
 - Open a command-line window 
 - Go to the folder of the pulled repo
 - Build the webapp (type "compose install")
