@@ -26,7 +26,7 @@ Perparations for the code
 
 Setting up the Database contents
 ---
-- Copy contents of in_new_db.cypher to your clipboard
+- Copy contents of in_new_db_RAW.cypher to your clipboard
 - Open the Neo4j browser
 - Paste the clipboard contents in to the commmand bar and press enter\
 
