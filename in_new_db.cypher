@@ -34,7 +34,7 @@ UNWIND [{start: {_id:2}, end: {_id:80}, properties:{}}, {start: {_id:1}, end: {_
 MATCH (start:`UNIQUE IMPORT LABEL`{`UNIQUE IMPORT ID`: row.start._id})
 MATCH (end:`UNIQUE IMPORT LABEL`{`UNIQUE IMPORT ID`: row.end._id})
 CREATE (start)-[r:hasDomain]->(end) SET r += row.properties;
-UNWIND [{start: {_id:42}, end: {_id:19}, properties:{}}, {start: {_id:43}, end: {_id:19}, properties:{}}, {start: {_id:45}, end: {_id:19}, properties:{}}, {start: {_id:44}, end: {_id:26}, properties:{}}] AS row
+UNWIND [{start: {_id:42}, end: {_id:19}, properties:{}}, {start: {_id:43}, end: {_id:19}, properties:{}}, {start: {_id:45}, end: {_id:19}, properties:{}}, {start: {_id:44}, end: {_id:26}, properties:{}}, {start: {_id:40}, end: {_id:23}, properties:{}}] AS row
 MATCH (start:`UNIQUE IMPORT LABEL`{`UNIQUE IMPORT ID`: row.start._id})
 MATCH (end:`UNIQUE IMPORT LABEL`{`UNIQUE IMPORT ID`: row.end._id})
 CREATE (start)-[r:TOTYPE]->(end) SET r += row.properties;
