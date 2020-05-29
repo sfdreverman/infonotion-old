@@ -40,15 +40,15 @@ The ```/examples``` folder contains a zip-file with a cypher-shell export of a F
 *(The source of this data is: https://www.kaggle.com/rohanrao/formula-1-world-championship-1950-2020)*
 
 To add the example:
-- Install Neo4j 3.5.1
+- Install Neo4j 3.5.1 *(alernatively: make sure your existing 3.5.1 installation is completely empty)*
 - Unpack the zip-file to the import folder of your Neo4j
-- ADD the following line to your conf/neo4j.conf *in the apoc section*
+- ADD the following line to your conf/neo4j.conf *(in the apoc section)*
 ```
 apoc.import.file.enabled=true
 ```
 - Start Neo4j
 - Go to: http://localhost:7474/browser/ and set the admin user (neo4j) password to "test"
-- In the neo4j browser type:
+- In the neo4j browser execute:
 ```
 CALL apoc.export.cypher.all("in_F1_example.cypher", {
     format: "cypher-shell",
