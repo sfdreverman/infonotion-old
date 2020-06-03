@@ -43,6 +43,7 @@ The ```/examples``` folder contains a zip-file with a cypher-shell export of a F
 
 To add the example:
 - Install Neo4j 3.5.1 *(alernatively: make sure your existing 3.5.1 installation is completely empty)*
+- Install the apoc library (put the .jar in the neo4j/plugins folder)
 - Unpack the zip-file to the import folder of your Neo4j
 - ADD the following line to your conf/neo4j.conf *(in the apoc section)*
 ```
