@@ -52,15 +52,10 @@ apoc.import.file.enabled=true
 - Go to: http://localhost:7474/browser/ and set the admin user (neo4j) password to "test"
 - In the neo4j browser execute:
 ```
-CALL apoc.export.cypher.all("in_F1_example.cypher", {
-    format: "cypher-shell",
-    useOptimizations: {type: "UNWIND_BATCH", unwindBatchSize: 20}
-})
-YIELD file, batches, source, format, nodes, relationships, properties, time, rows, batchSize
-RETURN file, batches, source, format, nodes, relationships, properties, time, rows, batchSize;
+CALL apoc.cypher.runFile("in_F1_example.cypher")
 ```
 - Open http://127.0.0.1:8000/
-- You'll find an ```F1``` option on the left-side.
+- You'll find a new ```F1``` domain on the left-side.
 - Try http://127.0.0.1:8000/frameN/View/F1/Season/empty 
 This last is 100% configured and shows what can be done with the current ViewController
 
