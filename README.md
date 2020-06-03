@@ -14,9 +14,11 @@ Preparations
 - Install Neo4j 3.5.1
 - Start Neo4j
 - Open the Neo4j Browser - http://localhost:7474/browser/ 
-- Set the admin user (neo4j) password to "test"
+- Set the admin user (neo4j) password to "test" with the following command in the Neo4j Browser:  
 
-Perparations for the code
+		:server change-password
+
+Preparations for the code
 ---
 - Clone the repo to a folder
 - Open a command-line window in the folder of the cloned repo
