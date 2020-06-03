@@ -4,7 +4,7 @@ Low-code platform proof-of-concept (crude start for a low-code environment)
 Installation
 ---
 Needed:
-- Neo4j 3.5.1
+- Neo4j 3.5.1, with apoc 3.5.0.11-all
 - Php 7.3.6
 - Composer 1.10.6
 
