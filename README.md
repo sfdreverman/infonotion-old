@@ -6,7 +6,7 @@ Installation
 Needed:
 - Neo4j 3.5.1
 - Php 7.3.6
-- Composer
+- Composer 1.10.6
 
 Preparations
 ---
