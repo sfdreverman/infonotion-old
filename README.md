@@ -12,6 +12,7 @@ Preparations
 ---
 - Install Php and make it findable in your repo folder
 - Install Neo4j 3.5.1
+- Install the apoc library (put the .jar in the neo4j/plugins folder)
 - Start Neo4j
 - Open the Neo4j Browser - http://localhost:7474/browser/ 
 - Set the admin user (neo4j) password to "test" with the following command in the Neo4j Browser:  
@@ -27,9 +28,11 @@ Preparations for the code
 
 Setting up the Database contents
 ---
-- Copy contents of ```in_new_db_RAW.cypher``` to your clipboard
 - Open the Neo4j browser
-- Paste the clipboard contents in to the commmand bar and press enter
+- Execute:
+```
+CALL apoc.cypher.runFile("in_new_db.cypher")
+```
 
 Open the application
 ---
