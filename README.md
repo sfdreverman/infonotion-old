@@ -4,19 +4,22 @@ Low-code platform proof-of-concept (crude start for a low-code environment)
 Installation
 ---
 Needed:
-- Neo4j 3.5.1
+- Neo4j 3.5.1, with apoc 3.5.0.11-all
 - Php 7.3.6
-- Composer
+- Composer 1.10.6
 
 Preparations
 ---
 - Install Php and make it findable in your repo folder
 - Install Neo4j 3.5.1
+- Install the apoc library (put the .jar in the neo4j/plugins folder)
 - Start Neo4j
 - Open the Neo4j Browser - http://localhost:7474/browser/ 
-- Set the admin user (neo4j) password to "test"
+- Set the admin user (neo4j) password to "test" with the following command in the Neo4j Browser:  
 
-Perparations for the code
+		:server change-password
+
+Preparations for the code
 ---
 - Clone the repo to a folder
 - Open a command-line window in the folder of the cloned repo
@@ -25,9 +28,11 @@ Perparations for the code
 
 Setting up the Database contents
 ---
-- Copy contents of ```in_new_db_RAW.cypher``` to your clipboard
 - Open the Neo4j browser
-- Paste the clipboard contents in to the commmand bar and press enter
+- Execute:
+```
+CALL apoc.cypher.runFile("in_new_db.cypher")
+```
 
 Open the application
 ---
@@ -41,6 +46,7 @@ The ```/examples``` folder contains a zip-file with a cypher-shell export of a F
 
 To add the example:
 - Install Neo4j 3.5.1 *(alernatively: make sure your existing 3.5.1 installation is completely empty)*
+- Install the apoc library (put the .jar in the neo4j/plugins folder)
 - Unpack the zip-file to the import folder of your Neo4j
 - ADD the following line to your conf/neo4j.conf *(in the apoc section)*
 ```
@@ -50,15 +56,10 @@ apoc.import.file.enabled=true
 - Go to: http://localhost:7474/browser/ and set the admin user (neo4j) password to "test"
 - In the neo4j browser execute:
 ```
-CALL apoc.export.cypher.all("in_F1_example.cypher", {
-    format: "cypher-shell",
-    useOptimizations: {type: "UNWIND_BATCH", unwindBatchSize: 20}
-})
-YIELD file, batches, source, format, nodes, relationships, properties, time, rows, batchSize
-RETURN file, batches, source, format, nodes, relationships, properties, time, rows, batchSize;
+CALL apoc.cypher.runFile("in_F1_example.cypher")
 ```
 - Open http://127.0.0.1:8000/
-- You'll find an ```F1``` option on the left-side.
+- You'll find a new ```F1``` domain on the left-side.
 - Try http://127.0.0.1:8000/frameN/View/F1/Season/empty 
 This last is 100% configured and shows what can be done with the current ViewController
 
