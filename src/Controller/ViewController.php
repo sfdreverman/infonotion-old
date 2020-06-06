@@ -11,15 +11,19 @@ use Symfony\Component\Validator\Constraints\DateTime;
 use App\Service\NeoService;
 
 class ViewController extends Controller
-{
-
+{	
+	private $neolib = null;
+	
+    public function __construct()
+    {
+        $this->neolib = new NeoService();
+    }
 	/**
 	 * @Route("/frameN/{frameName}/{domain}/{metaType}/{instanceID}", defaults={"instanceID" = "", "metaType" = "", "domain" = ""})
 	 */
 	 public function loadframeByName($frameName, $domain, $metaType, $instanceID)
 	 {
-		$neolib = new NeoService();		
-		$frame = $neolib->getFrameByName($this->getNeo4jClient(), $frameName);
+		$frame = $this->neolib->getFrameByName($this->getNeo4jClient(), $frameName);
 		return $this->getFrame($frame,$domain,$metaType,$instanceID);
 	 }		 
 	 
@@ -28,8 +32,7 @@ class ViewController extends Controller
 	 */
 	 public function loadframe($frameID, $domain, $metaType, $instanceID)
 	 {
-		$neolib = new NeoService();		
-		$frame = $neolib->getFrame($this->getNeo4jClient(), $frameID);
+		$frame = $this->neolib->getFrame($this->getNeo4jClient(), $frameID);
 		return $this->getFrame($frame,$domain,$metaType,$instanceID);
 	 }	 
 	 
@@ -100,8 +103,7 @@ class ViewController extends Controller
 			}
 		
 		$neocl = $this->getNeo4jClient();
-		$neolib = new NeoService();	
-		$theData = $neolib->getView($neocl, $viewID, false);
+		$theData = $this->neolib->getView($neocl, $viewID, false);
 		// $defaultTwigTemplate = 'view//'+$theView
 		
 		if ($page!=-1)

@@ -30,7 +30,7 @@ class DataEditorController extends Controller
 	
     public function __construct()
     {
-        $this->neolib = new NeoService();	
+        $this->neolib = new NeoService();
     }	
 	
 	// Delete an instance of a metaType (Person, Company, etc...)
