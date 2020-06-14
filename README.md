@@ -64,6 +64,7 @@ CALL apoc.cypher.runFile("in_F1_example.cypher")
 This last is 100% configured and shows what can be done with the current ViewController
 
 Questionnaire example database
+---
 The /examples folder contains a zip-file with a cypher-shell export of the Questionnaire database.
 
 To add the example follow the steps of the F1 example, but with:
