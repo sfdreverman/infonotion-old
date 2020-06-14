@@ -1,0 +1,20 @@
+			function getNextQuestion(divpanelID, respondentID, LoQID)
+			{
+				var answerID = document.getElementById("AnswerID");
+				var answText = '';
+				if (answerID != null){ answText = '/'+answerID.innerHTML; }
+			
+				$.get('/j_getnextquestion/'+respondentID+'/'+LoQID + answText,
+                    function (data) {						
+                        if (!data || data.length == 0) { 
+							$(data['response']).innerHTML="";
+							return
+						} 
+						
+						var t = $("div#"+divpanelID).empty();
+						$(data['response']).appendTo(t);
+						panelClick('right');
+						
+                    }, "json");
+                return false;				
+			}

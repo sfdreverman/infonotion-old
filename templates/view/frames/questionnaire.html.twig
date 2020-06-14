@@ -1,0 +1,109 @@
+{% extends 'base.html.twig' %}
+
+{% block sidebar %}
+
+{% endblock %}
+
+{% block body %}
+	<div class="row">
+		<div id="leftpanel" class="col-md-5 rpadding">
+			<div class="panel panel-default">
+				<form name="Respondent" method="SUBMIT">
+					<div class="well">
+						<br>
+						Please enter your name
+						<div class="input-group">
+							<span class="input-group-addon" for="RespondentName">Name</span>
+							<input type="text" id="RespondentName" name="RespondentName" required pattern="[A-Za-z0-9]{1,20}" class="form-control" value="">
+						</div>
+						<p id="inputmsg"></p>
+						<label type="submit" class="btn btn-primary" name="RespondentSubmitButton" id="RespondentSubmit" onclick="validateForm()">
+										Submit
+									</label>
+					</div>
+				</form>
+			</div>			
+			<div><br></div>
+			<div role="navigation" id="RespondentInfoHeader" class="panel-heading"  onClick="panelClick('left')">
+			<strong>Respondent information</strong>
+			</div>
+			<div class="panel panel-default">
+				<div id="RespondentInformation" class="panel panel-default noborder">
+				  
+				</div>				
+			</div>					
+		</div>	
+		<div id="rightpanel" class="col-md-3 rpadding">
+			<div class="panel panel-default"  onClick="panelClick('right')">
+				<div id="NextQuestion" class="panel panel-default noborder">
+					test
+				</div>	
+			</div>
+		</div>	
+	</div>
+
+	
+    <script>
+	
+		function validateForm() {
+		  var inpObj = document.forms["Respondent"]["RespondentName"];
+		  if (!inpObj.checkValidity()) {
+			document.getElementById("inputmsg").innerHTML = inpObj.validationMessage;
+			return false;
+		  } else
+		  {
+			// Disable the button
+			
+		    // get respondent information (if any)
+			$.get('/j_getRespondentInfo/'+inpObj.value+'/{{instanceID}}',
+                    function (data) {						
+                        if (!data || data.length == 0) {
+							document.getElementById("RespondentInformation").innerHTML = '<p>Sorry, we could not find your name in our database.</p>';
+							return;
+						}
+						
+						// Paste it in RespondentInformation div
+						var welcometext = 'Welcome,'+data[0]['RespondentName']+'. <br><br>You are about to answer a Questionnaire.<br>';
+						if (data[0]['QuestionsAnswered']===0)
+						{
+							welcometext = welcometext+'We see that you have not answered any questions yet. So lets started right away!<br>';
+						}
+						else
+						{
+							if (data[0]['QuestionsAnswered']==data[0]['TotalQuestions'])
+							{
+								welcometext = welcometext+'<br>... or are you?!?!<br>   I see that you have already answered all the questions, so you are done!<br>'
+							}
+							else{
+								welcometext = welcometext+'We see that you have already answered '+data[0]['QuestionsAnswered']+' questions. So lets finish it!<br>'
+							}
+						}
+						
+						welcometext = welcometext+'<br>Your ID is: '+data[0]['RespondentID']+'<br>'
+						document.getElementById("RespondentInformation").innerHTML = '<p>'+welcometext+'</p>';
+						
+						// show (next) question
+						getNextQuestion('NextQuestion',data[0]['RespondentID'],'{{instanceID}}');
+						
+                    }, "json");			
+		    }
+		}
+	
+		function moveTable(from, to) {
+			var fromData = $("div#Curr_NOCLICK");
+			var toData = $("div#Prev");
+			toData.empty();
+			toData[0].innerHTML=fromData[0].innerHTML;
+			fromData[0].innerHTML="";
+		}
+			
+	
+			{% include 'snippets/panelclick.html' %}
+	
+			{% include 'question/getNextQuestion.html' %}
+			
+			{% include 'snippets/windowOnLoad.Entity.html' %}
+    </script>	
+
+
+{% endblock %}

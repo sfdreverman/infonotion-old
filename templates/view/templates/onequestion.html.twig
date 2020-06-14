@@ -1,0 +1,33 @@
+{%if Question is empty %}
+<div class="panel-heading" id="title">
+	<span hidden id="AnswerID"></span>
+	<span class="h3 caption" id="ItemName">No further questions!</span>
+	<br>
+	<br>
+	You've succesfully completed this Questionnaire.<br>
+	Pad yourself on the back and go celebrate!<br>
+	<br>
+</div>
+{%else%}
+
+<div class="panel-heading" id="title">
+	<span hidden id="AnswerID"></span>
+	<span class="h3 caption" id="ItemName">Question {{Question['Question']['order']}}:<br>{{Question['Question']['name']}}</span>
+	<br>
+	<br>
+	<div class="btn-group-vertical" role="group" aria-label="Basic example">
+		{% for value in Question['Answers'] %}	
+			<button type="button" class="btn btn-secondary" id='{{value['in_id']}}' onclick="setAnswer('{{value['in_id']}}')">{{value['name']}}</button>
+		{% endfor %}
+	</div>
+	<br>
+	<label class="btn btn-primary" name="Submit" onclick="getNextQuestion('NextQuestion','{{RespondentID}}','{{LoQID}}')">Submit</label>
+</div>
+{%endif%}
+
+    <script>
+		function setAnswer(answerID)
+		{
+			document.getElementById("AnswerID").innerHTML = answerID;
+		}
+	</script>
