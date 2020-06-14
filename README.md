@@ -71,7 +71,6 @@ To add the example follow the steps of the F1 example, but with:
 - for unpacking the zip use: "in_Questionnaire_example.zip"
 - for the *runFile* command use: "in_Questionnaire_example.cypher"
 
-In the neo4j browser execute:
 Open http://127.0.0.1:8000/questionnaire/ListOfQuestions5edd01130cda05.66170200
 
 Happy coding!
