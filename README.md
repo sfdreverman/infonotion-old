@@ -63,4 +63,14 @@ CALL apoc.cypher.runFile("in_F1_example.cypher")
 - Try http://127.0.0.1:8000/frameN/View/F1/Season/empty 
 This last is 100% configured and shows what can be done with the current ViewController
 
+Questionnaire example database
+---
+The /examples folder contains a zip-file with a cypher-shell export of the Questionnaire database.
+
+To add the example follow the steps of the F1 example, but with:
+- for unpacking the zip use: "in_Questionnaire_example.zip"
+- for the *runFile* command use: "in_Questionnaire_example.cypher"
+
+Open http://127.0.0.1:8000/questionnaire/ListOfQuestions5edd01130cda05.66170200
+
 Happy coding!
