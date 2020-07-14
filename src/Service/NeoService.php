@@ -56,7 +56,12 @@ class NeoService
 				{
 					$lmr++;
 					$lmarr[$lmr] = uniqid($data['rel_name'][$i],true);
-					$q = $q.'WITH newtype MATCH (t) WHERE t.in_id=\''.$data['rel_type'][$i].'\' MERGE (newtype)-[:HASREL]->(lmr'.$lmr.':MetaRel {in_id:\''.$lmarr[$lmr].'\', name:\''.$data['rel_name'][$i].'\', iscomp:\''.$data['rel_comp'][$i-$nattrs].'\', multi:'.$data['rel_multi'][$i-$nattrs].', domain:\'FunctionalType\' })-[:TOTYPE]->(t) ';
+					if ($data['rel_type'][$i]==='Self'){
+						$q = $q.'WITH newtype MERGE (newtype)-[:HASREL]->(lmr'.$lmr.':MetaRel {in_id:\''.$lmarr[$lmr].'\', name:\''.$data['rel_name'][$i].'\', iscomp:\''.$data['rel_comp'][$i-$nattrs].'\', multi:'.$data['rel_multi'][$i-$nattrs].', domain:\'FunctionalType\' })-[:TOTYPE]->(newtype) ';
+					}
+					else{
+						$q = $q.'WITH newtype MATCH (t) WHERE t.in_id=\''.$data['rel_type'][$i].'\' MERGE (newtype)-[:HASREL]->(lmr'.$lmr.':MetaRel {in_id:\''.$lmarr[$lmr].'\', name:\''.$data['rel_name'][$i].'\', iscomp:\''.$data['rel_comp'][$i-$nattrs].'\', multi:'.$data['rel_multi'][$i-$nattrs].', domain:\'FunctionalType\' })-[:TOTYPE]->(t) ';
+					}
 				}
 			}
 			// add all attributes last!

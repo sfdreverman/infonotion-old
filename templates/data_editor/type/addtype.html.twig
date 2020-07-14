@@ -69,7 +69,7 @@
 					
 					var reltoadd = '<div class="container"> <div class="input-group">';				
 					reltoadd+='<span class="input-group-addon">Name</span><input class="form-control" type="text" name="rel_name[]">';
-					reltoadd+='<span class="input-group-addon">to Type</span> <select class="form-control" id="relselect" name="rel_type[]">	{% for listitem in listitems %} <option value="{{ listitem.value('id') }}"> {{ listitem.value('name') }} </option>	{% endfor %} </select>';
+					reltoadd+='<span class="input-group-addon">to Type</span> <select class="form-control" id="relselect" name="rel_type[]"><option value="Self">Self (circular relation)</option>	{% for listitem in listitems %} <option value="{{ listitem.value('id') }}"> {{ listitem.value('name') }} </option>	{% endfor %} </select>';
 					reltoadd+='<span class="input-group-addon">IsCompositional</span><select class="form-control" id="relcompose" name="rel_comp[]"><option value="false">No</option><option value="true">Yes</option></select>';
 					reltoadd+='<span class="input-group-addon">Multiple Answers</span><select class="form-control" id="relmulti" name="rel_multi[]"><option value="false">No</option><option value="true">Yes</option></select>';
 					reltoadd+='<span class="input-group-btn"><button type="button" class="btn btn-secondary deleteRel">Delete</button></span></div><button class="btn btn-secondary" type="button" id="addrelattr">Add Relation Attribute</button><div class="input-group"><span class="input-group-addon">Attributes</span><span class="input-group-btn"></span><div id="attrrelplaceholder"></div></div><hr/>';
