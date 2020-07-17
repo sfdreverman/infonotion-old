@@ -40,7 +40,7 @@ class ViewController extends Controller
 	 public function getFrame($frame,$domain,$metaType,$instanceID)
 	 {
 		$ViewID = $frame['view']['in_id'];
-		$renderedView = $this->HTMLView($domain, $metaType, $ViewID, $instanceID, -1);
+		$renderedView = $this->HTMLView($domain, $metaType, $ViewID, $instanceID, -1, "");
 		$paramArray = array(
 			'subtit' => 'Data viewer',
 			'domain' => $domain,
@@ -59,13 +59,14 @@ class ViewController extends Controller
 	 // JSONifies the HTML render for transport to frontend
     public function getHTMLViewData(Request $request, $domain, $metaType, $viewID, $instanceID, $page)
     {
+		$searchString = $request->query->get('search');
 		return new JsonResponse(
 					array("code" => 200, 
-						  "response" => $this->HTMLView($domain, $metaType, $viewID, $instanceID, $page)));
+						  "response" => $this->HTMLView($domain, $metaType, $viewID, $instanceID, $page, $searchString)));
 	}
 	
 	// returns the actual HTML rendered response (allowing injection of view with pre-rendered HTML)
-	public function HTMLView($domain, $metaType, $viewID, $instanceID, $page)
+	public function HTMLView($domain, $metaType, $viewID, $instanceID, $page, $searchString)
 	{
 			function endsWith($haystack, $needle) {
 				return substr_compare($haystack, $needle, -strlen($needle)) === 0;
@@ -125,13 +126,16 @@ class ViewController extends Controller
 		}
 		
 		$atRecord = max(($page * $maxRecords),0);
-		
-		$query=str_replace('{SourceNodeID}',$instanceID,$theData['view']['query']);
+		// do we have a search string?
+		$query = ($searchString == "") ? $query = $theData['view']['query'] : $theData['view']['searchquery'];
+		//
+		$query=str_replace('{SourceNodeID}',$instanceID,$query);
 		$query=str_replace('{instanceID}',$instanceID,$query);
 		$query=str_replace('{domain}',$domain,$query);		
 		$query=str_replace('{metaType}',$metaType, $query);
 		$query=str_replace('{maxRecords}',$maxRecords,$query);
 		$query=str_replace('{atRecord}',$atRecord,$query);		
+		$query=str_replace('{searchstring}',$searchString,$query);				
 
 		$theQueryData = $neocl->run($query)->records();
 		
@@ -177,6 +181,7 @@ class ViewController extends Controller
 			'theResult' => $theResult,
 			'recCount' => $metaTypeRecCount,
 			'pageNum' => $page,
+			'searchString' => $searchString,
 			'theView' => $theData['view']);
 		
         return $this->render('view/templates/'.$theData['view']['templateName'], $resultArray)->getContent();

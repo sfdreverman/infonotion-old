@@ -3,13 +3,12 @@
 <script>
 		var timeout = null;
 		function updateSearchString(e) {		
-					clearTimeout(timeout);
-					timeout = setTimeout(function () {
-						showEntityList("{{ domain }}",e.target.name,document.getElementById('pgNum').innerHTML,e.target.value);
-					}, 125);			
-
-		}
-		
+				clearTimeout(timeout);
+				timeout = setTimeout(function () {
+					showView("{{ domain }}","{{ metaType }}",'empty',e.target.getAttribute('data-inid'),"newtable",0,e.target.value);
+				}, 250);			
+			}	
+				
 		function TableClick(myobj, domain, name, instID, viewID,divID)
 		{
 			$(myobj).closest('table').find('td').not(this).removeClass('selected');      
@@ -17,10 +16,7 @@
 			$(myobj).parent().siblings().removeClass('highlight');
 			$(myobj).parent().toggleClass('highlight');
 			$(myobj).toggleClass('selected');
-			showView(domain, name,instID,viewID,divID,-1);
+			showView(domain, name,instID,viewID,divID,-1,"");
 		}
 		
-		function showEntityList(domain, name, page, searchstring) {
-					showView(domain, name,'empty','View5d98dbc439a5a4.32197708','newtable',page);
-		}
 </script>
