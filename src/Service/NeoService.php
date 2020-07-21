@@ -32,7 +32,8 @@ class NeoService
 	// $data holds all information that was input via the addtype.html.twig form.
 	public function add_metatype($neocl, $label, $data)
 	{
-		$q = 'MERGE (newtype:'.$label.' {in_id:\''.uniqid($data['typename'],true).'\', name: \''.$data['typename'].'\'}) ';
+		$q = 'MERGE (newtype:'.$label.' {in_id:\''.uniqid($data['typename'],true).'\', name: \''.$data['typename'].'\', isabstract:'.$data['isabstract'].'} ) ';
+		
 		// Add all attributes
 		if (array_key_exists('attr_name', $data)) {
 			$length = count($data['attr_name']);
@@ -40,6 +41,12 @@ class NeoService
 				$q = $q.'MERGE (newtype)-[:HASATTR]->(:MetaAttr {name:\''.$data['attr_name'][$i].'\', attrtype:\''.$data['attr_type'][$i].'\', domain:\'FunctionalType\', in_id:\''.uniqid($data['attr_name'][$i][0],true).'\' }) ';
 			}
 		}
+		// Add inheritance relation if needed
+		if (array_key_exists('inheritsFrom',$data) && $data['inheritsFrom']!='None')
+		{
+			$q = $q.' WITH newtype MATCH (basetype {in_id:\''.$data['inheritsFrom'].'\'}) MERGE (newtype)-[:INHERITS]->(basetype)';
+		}
+		
 		// Add all relations, if present
 		if (array_key_exists('rel_name', $data)) {
 			$lmr = 0; // unique query id for attributes of relation
@@ -76,7 +83,6 @@ class NeoService
 					$q = $q.'WITH newtype MATCH (t) WHERE t.in_id=\''.$data['loattr_type'][$i].'\' MERGE (newtype)-[:HASLOATTR]->(lmr'.$lmr.':MetaLookupAttr {in_id:\''.$lmarr[$lmr].'\', name:\''.$data['loattr_name'][$i].'\', domain:\'FunctionalType\' })-[:FROMTYPE]->(t) ';
 				}
 		}
-		
 		return $neocl->run($q);
 	}
 	
@@ -84,7 +90,7 @@ class NeoService
 	// Will return an ERROR if there are incoming relationships. (THIS IS DELIBERATE!)
 	public function remove_MetaType($neocl, $domain, $metaType)
 	{
-		$query = 'MATCH (n:'.$domain.') WHERE n.name={metaType} OPTIONAL MATCH (n)-->(m) DETACH DELETE m DELETE n';
+		$query = 'MATCH (n:'.$domain.') WHERE n.name={metaType} OPTIONAL MATCH (n)-[r]->(m) WHERE not (n)-[r:INHERITS]->(m) DETACH DELETE m,n';
 		$result = $neocl->run($query,["metaType" => $metaType]);
 	}
 	
@@ -95,7 +101,11 @@ class NeoService
 	// METADATA: Retrieve all attributes MetaAttr of $metaType in domain $domain. Returns name, type. orders by name.
 	public function get_typeattr($neocl,$metaType,$domain)
 	{
-		$q = 'MATCH (n:'.$domain.')-[:HASATTR]->(a:MetaAttr) WHERE n.name = \''.$metaType.'\' RETURN a.name AS name,a.attrtype AS type,a.defval as defval, a.description as desc ORDER BY a.name';
+		// no inheritance:
+		//$q = 'MATCH (n:'.$domain.')-[:HASATTR]->(a:MetaAttr) WHERE n.name = \''.$metaType.'\' RETURN a.name AS name,a.attrtype AS type,a.defval as defval, a.description as desc ORDER BY a.name';
+		// with inheritance:
+		$retstatement = 'RETURN a.name AS name,a.attrtype AS type,a.defval as defval, a.description as desc ORDER BY a.name DESC';
+		$q = 'MATCH (n:'.$domain.' {name:\''.$metaType.'\'})-[:HASATTR]->(a:MetaAttr) '.$retstatement.' UNION MATCH (n:'.$domain.' {name:\''.$metaType.'\'})-[:INHERITS*]->(nn)-[:HASATTR]->(a:MetaAttr) '.$retstatement;
 		return $neocl->run($q);
 	}	
 	
@@ -110,8 +120,11 @@ class NeoService
 	public function get_metaLookupAttrs($neocl,$label, $instData)
 	{
 		$attrName = 'name';
-		if ($label == 'Action') {$attrName = 'in_id';}
-		$q = 'MATCH (n:'.$label.')-[:HASLOATTR]->(a:MetaLookupAttr)-[:FROMTYPE]-(t) WHERE n.'.$attrName.'= \''.$instData.'\' RETURN a.name AS name, t.name as fromtype, a.in_id as relid, labels(t)[0] as domain, a.description as desc ORDER BY a.name';
+		// no inheritance:
+		//$q = 'MATCH (n:'.$label.')-[:HASLOATTR]->(a:MetaLookupAttr)-[:FROMTYPE]-(t) WHERE n.'.$attrName.'= \''.$instData.'\' RETURN a.name AS name, t.name as fromtype, a.in_id as relid, labels(t)[0] as domain, a.description as desc ORDER BY a.name';
+		// with inheritance:
+		$retstatement = 'RETURN a.name AS name, t.name as fromtype, a.in_id as relid, labels(t)[0] as domain, a.description as desc ORDER BY a.name';		
+		$q = 'MATCH (n:'.$label.' {name:\''.$instData.'\'})-[:HASLOATTR]->(a:MetaLookupAttr)-[:FROMTYPE]-(t) '.$retstatement.' UNION MATCH (n:'.$label.' {name:\''.$instData.'\'})-[:INHERITS*]->()-[:HASLOATTR]->(a:MetaLookupAttr)-[:FROMTYPE]-(t) '.$retstatement;		
 		return $neocl->run($q);
 	}	
 	
@@ -120,7 +133,11 @@ class NeoService
 	{
 		$attrName = 'name';
 		if ($label == 'Action') {$attrName = 'in_id';}
-		$q = 'MATCH (n:'.$label.')-[:HASREL]->(a:MetaRel)-[:TOTYPE]-(t) WHERE n.'.$attrName.'= \''.$instData.'\' RETURN a.name AS name, t.name as totype, a.in_id as relid, a.iscomp as iscomp, a.multi as multi, labels(t)[0] as domain,a.description as desc ORDER BY a.name';
+		// no inheritance:
+		// $q = 'MATCH (n:'.$label.')-[:HASREL]->(a:MetaRel)-[:TOTYPE]-(t) WHERE n.'.$attrName.'= \''.$instData.'\' RETURN a.name AS name, t.name as totype, a.in_id as relid, a.iscomp as iscomp, a.multi as multi, labels(t)[0] as domain,a.description as desc ORDER BY a.name';
+		// with inheritance:
+		$retstatement = 'RETURN a.name AS name, t.name as totype, a.in_id as relid, a.iscomp as iscomp, a.multi as multi, labels(t)[0] as domain,a.description as desc ORDER BY a.name';
+		$q = 'MATCH (n:'.$label.' {name:\''.$instData.'\'})-[:HASREL]->(a:MetaRel)-[:TOTYPE]-(t) '.$retstatement.' UNION MATCH (n:'.$label.' {name:\''.$instData.'\'})-[:INHERITS*]->()-[:HASREL]->(a:MetaRel)-[:TOTYPE]-(t) '.$retstatement;		
 		return $neocl->run($q);
 	}	
 	

@@ -4,7 +4,7 @@
 				return elm;
 			}
 			
-			function showView(domain, metaType, entityId, viewID, divpanelID, pageNum,searchstring)
+			function showView(domain, metaType, entityId, viewID, divpanelID, pageNum, searchstring)
 			{
 				getStr = '/j_htmlview/'+domain+'/'+metaType+'/'+viewID+'/'+entityId+'/'+pageNum;
 				if (searchstring != null && searchstring != "") {getStr = getStr + '?search='+searchstring;}

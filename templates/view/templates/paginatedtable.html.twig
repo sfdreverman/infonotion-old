@@ -29,6 +29,8 @@
       </a>
     </li>
   </ul>
-  <a id="addLink" class="btn btn-primary btn-sm pull-right fixed-top" href="/dataeditor/edit/{{ domain }}/{{ metaType }}">Add</a>
+  {% if theView['canAdd'] is defined and theView['canAdd'] and theView['metaTypeIsAbstract'] is defined and not theView['metaTypeIsAbstract'] %} 
+	<a id="addLink" class="btn btn-primary btn-sm pull-right fixed-top" href="/dataeditor/edit/{{ domain }}/{{ metaType }}">Add</a>  
+  {% endif %}
 </nav>
 </div>

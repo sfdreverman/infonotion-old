@@ -106,6 +106,18 @@ class ViewController extends Controller
 		$neocl = $this->getNeo4jClient();
 		$theData = $this->neolib->getView($neocl, $viewID, false);
 		// $defaultTwigTemplate = 'view//'+$theView
+		if (array_key_exists('canAdd', $theData['view']))
+		{
+			if ($theData['view']['canAdd'] == true)
+			{
+				$myq = 'MATCH (n:{domain} {name:{metaType}}) RETURN n.isabstract';
+				$myq=str_replace('{metaType}','\''.$metaType.'\'',$myq);		
+				$myq=str_replace('{domain}',$domain, $myq);				
+				$myq=str_replace('{viewid}',$viewID, $myq);							
+				$qres = nodeToArr($neocl->run($myq)->records());
+				$theData['view']['metaTypeIsAbstract'] = array_key_exists('0', $qres) ? $theData['view']['metaTypeIsAbstract']=$qres[0]['n.isabstract'] : false;
+			}
+		}
 		
 		if ($page!=-1)
 		{

@@ -10,15 +10,28 @@
 {% block body %}
 	<form name="addtype" method="POST">
 		<h3>New type</h3>
-
 		<div class="input-group">
-			<span class="input-group-addon">Name</span>
-			<input type="text" class="form-control" name="typename">
-			<span class="input-group-btn">
-				<button class="btn btn-secondary" type="submit" id="submit">Save</button>
-			</span>
+			<div id="typeplaceholder">
+		
+				<div class="input-group">
+					<span class="input-group-addon">Name</span>
+					<input type="text" class="form-control" name="typename">
+					<span class="input-group-btn">
+						<button class="btn btn-secondary" type="submit" id="submit">Save</button>
+					</span>
+				</div>
+				<br>
+				<div class="input-group">
+					<span class="input-group-addon">Abstract Type?</span>
+					<select class="form-control" id="isabstract" name="isabstract"><option value="false">No</option><option value="true">Yes</option></select><br>			
+				</div>
+				<div class="input-group">					
+					<span class="input-group-addon">Inherits Attributes and Relations From: </span> 
+					<select class="form-control" id="inheritsFrom" name="inheritsFrom"><option value="None">None</option>{% for listitem in listitems %} <option value="{{ listitem.value('id') }}"> {{ listitem.value('name') }} </option>	{% endfor %} </select>
+				</div>
+			<br>
+			</div>
 		</div>
-		<br>
 		<h4>Attributes</h4>
 		<div class="input-group">
 			<div id="attrplaceholder">
