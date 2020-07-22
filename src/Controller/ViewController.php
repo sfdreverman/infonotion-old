@@ -42,7 +42,7 @@ class ViewController extends Controller
 		$ViewID = $frame['view']['in_id'];
 		$renderedView = $this->HTMLView($domain, $metaType, $ViewID, $instanceID, -1, "");
 		$paramArray = array(
-			'subtit' => 'Data viewer',
+			'subtit' => $frame['frame']['name'],
 			'domain' => $domain,
 			'metaType' => $metaType,
 			'instanceID' => $instanceID,

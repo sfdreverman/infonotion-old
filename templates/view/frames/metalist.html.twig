@@ -1,11 +1,11 @@
 {% extends 'base.html.twig' %}
 {% block sidebar %}
-	<a class="btn btn-primary btn-block" href="/databrowser/"><<</a><br>
+	<a class="btn btn-primary btn-block" href="/frameN/databrowser/{{ domain }}/{{ metaType }}"><<</a><br>
 	{{ ViewContent|raw }}
 	<br> <br>
-	<div class="panel text-center">
-	<a class="btn btn-primary topmargin" href="/frameN/metaeditor/{{ domain }}/{{ metaType }}">Edit Model</a>
-	</div>
+	{% include 'data_editor/type/addtypebutton.html' %}
+	
+	{% include 'data_editor/type/removetypebutton.html' %}
 {% endblock %}
 
 {% block body %}

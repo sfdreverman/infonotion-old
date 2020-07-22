@@ -149,28 +149,42 @@ class NeoService
 	}
 	
 	// Compiles retrieved data into a Neo4j query to create/merge a typed instance.
-	public function CreateOrMergeInstance($neocl, $domain, $metaType, $metaAttrData, $metaLoAttrData, $metaRelData, $resultData, $instanceID)
+	public function CreateOrMergeInstance($neocl, $domain, $metaType, $metaData, $resultData, $instanceID, $isMetaThing)
 	{
 		$q = '';
 		// if in_id is returned, then it is an edited node!!!
-		if ($instanceID=="") { $instanceID = uniqid($metaType,true); }
+		if ($instanceID=="") { $instanceID = $isMetaThing != [] ? uniqid($isMetaThing['makeMT'],true) : uniqid($metaType,true); }
 		
 		// Start of Query 
 		// Create or find node
-		$q = $q.'MERGE (nti:'.$metaType.' {in_id:\''.$instanceID.'\'}) ';
+		
+		if ($isMetaThing != [])
+		{
+			$toRel = ['MetaAttr' => 'HASATTR', 'MetaLookupAttr' => 'HASLOATTR', 'MetaRel' => 'HASREL'];
+			// for meta things do:
+			$q = $q.'MATCH (cTo:'.$domain.' {name:\''.$metaType.'\'}) WITH cTo ';
+			$q = $q.'MERGE (cTo)-[:'.$toRel[$isMetaThing['makeMT']].']->(nti:'.$isMetaThing['makeMT'].' {in_id:\''.$instanceID.'\'}) ';
+			// swap makeMT & for metaType
+			$domain = $isMetaThing['makedomain'];
+			$metaType = $isMetaThing['makeMT'];
+		}
+		else {
+			// for instances do:
+			$q = $q.'MERGE (nti:'.$metaType.' {in_id:\''.$instanceID.'\'}) ';
+		}
+		
 		// Set standard attributes
-		$q = $q.'SET nti.domain="'.$domain.'" ';
+		$q = $q.'SET nti.domain="'.$domain.'" ';		
 		
 		// Set custom attributes
-		foreach($metaAttrData as $field) {
+		foreach($metaData['Attr'] as $field) {
 			if (is_array($field)) {
 				if ($field['type']=='number')
 				{
 					$q = $q.'SET nti.'.$field['name'].' = '.$resultData[$field['name']].' ';
 				} else 
 				if ($field['type']=='bool') {
-					$tempres = 'false';
-					if ($resultData[$field['name']]=='1') {$tempres = 'true';} 
+					$tempres = $resultData[$field['name']]=='1' ? 'true' : 'false';
 					$q = $q.'SET nti.'.$field['name'].' = '.$tempres.' ';
 				}
 				else
@@ -185,16 +199,17 @@ class NeoService
 		}
 		
 		// Set Lookup Attributes - NOT IMPLEMENTED YET
-		foreach($metaLoAttrData as $field) {
+		foreach($metaData['LoAttr'] as $field) {
 			$q = $q.'SET nti.'.$field['name'].' = "'.$resultData[$field['name']].'" ';
 		}		
 		
 		$result = '';
 		// Commit
+
 		$result = $neocl->run($q);
 		
 		// Add all relations (if they exist)
-		self::CreateOrMergeRelationData($neocl,$metaType,$instanceID,$metaRelData,$resultData);
+		self::CreateOrMergeRelationData($neocl,$metaType,$instanceID,$metaData['Rel'],$resultData);
 
 		return $result;
 	}
@@ -225,8 +240,8 @@ class NeoService
 	
 
 
-	// Returns everything related to label $metaType (all labels Person) -- New Style!
-	public function getInstanceEditData($neocl, $label, $metaType, $instanceID)
+	// Returns everything related to $metaType (all labels Person) -- New Style!
+	public function getInstanceEditData($neocl, $metaType, $instanceID)
     {		
 		if ($metaType<>'') {$metaType=':'.$metaType;}
         //$query = 'MATCH (n'.$metaType.') WHERE n.in_id={instanceID} OPTIONAL MATCH (n)-[r]->(m) RETURN DISTINCT n,COLLECT(r) as r2,m.in_id as m';
@@ -268,7 +283,7 @@ class NeoService
 	// Get Frame by Name
 	public function getFrameByName($neocl, $instanceName)
 	{
-		return $this->getFrameRes($neocl, 'match (f:Frame)-[:startView]->(v:View) WHERE f.name={param} RETURN f,v',$instanceName);
+		return $this->getFrameRes($neocl, 'match (f:Frame)-[:startView]->(v:View) WHERE replace(toLower(f.name)," ","")={param} RETURN f,v',$instanceName);
 	}	
 	
 	// Get the actual result (originated from ID or Name)

@@ -4,11 +4,18 @@
 	<span hidden id="ItemTableID"></span>
 	<span class="caption" id="ItemMetaType">{{entity['in_metaType']}}</span><br>
 	<span class="h3 caption" id="ItemName">{{ entity['name']|nl2br }}</span>
+	{% if entity['in_metaType'] starts with 'Meta' %}
+		{% set refprefix = 'meta' %}
+		{% set useddomain = domain %}
+	{% else %}
+		{% set refprefix = 'data' %} 
+		{% set useddomain = entity['domain'] %}
+	{% endif %}
 	{% if theView['canDelete'] %}
-		<a id="deleteLink" class="btn btn-primary btn-sm pull-right" href="/dataeditor/delete/{{entity['domain']}}/{{entity['in_metaType']}}/{{ entity['in_id'] }}">Delete</a>
+		<a id="deleteLink" class="btn btn-primary btn-sm pull-right" href="/{{ refprefix }}editor/delete/{{ useddomain }}/{{entity['in_metaType']}}/{{ entity['in_id'] }}">Delete</a>
 	{% endif %}
 	{% if theView['canEdit'] %}
-		<a id="editLink" class="btn btn-primary btn-sm pull-right" href="/dataeditor/edit/{{entity['domain']}}/{{entity['in_metaType']}}/{{ entity['in_id'] }}">Edit</a>
+		<a id="editLink" class="btn btn-primary btn-sm pull-right" href="/{{ refprefix }}editor/edit/{{ useddomain }}/{{entity['in_metaType']}}/{{ entity['in_id'] }}">Edit</a>
 	{% endif %}
 </div>
 

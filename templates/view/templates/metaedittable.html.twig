@@ -1,0 +1,38 @@
+{% include 'view/templates/scripted_table.html.twig'%}
+
+{% set numPages = recCount % theView['RecordsPerPage'] %}
+{% set currMin = (pageNum * theView['RecordsPerPage']) + 1 %}
+{% set currMax = (pageNum + 1) * theView['RecordsPerPage'] %}
+{% set hasPrevPage = pageNum>0 %}
+{% set hasNextPage = currMax<=recCount %}
+{% if hasNextPage %}
+	{% set maxToShow = currMax %}
+{% else %}
+	{% set maxToShow = recCount %}
+{% endif %}
+
+<div class="panel panel-heading"><nav aria-label="Page navigation">
+  <ul class="pagination form-inline fixed-top">
+    <li class="page-item">
+      <label class="btn {% if not hasPrevPage %} disabled {% endif %}" aria-label="Previous" onClick="showView('{{domain}}','{{metaType}}','empty','{{theView['in_id']}}','newtable',{{pageNum-1}})">
+        <span aria-hidden="true">&laquo;</span>
+        <span class="sr-only">Previous</span>
+      </label>
+    </li>
+	<li class="page-item">
+		<label class="btn disabled">{{currMin}}..{{maxToShow}} of {{ recCount }}</label>	
+	</li>
+    <li class="page-item">
+      <label class="btn {% if not hasNextPage %} disabled {% endif %}" aria-label="Next" onClick="showView('{{domain}}','{{metaType}}','empty','{{theView['in_id']}}','newtable',{{pageNum+1}})">
+        <span aria-hidden="true">&raquo;</span>
+        <span class="sr-only">Next</span>
+      </a>
+    </li>
+  </ul>
+  {% if theView['canAdd'] is defined and theView['canAdd'] %} 
+	<a id="addLinkRel" class="btn btn-primary btn-sm pull-right fixed-top" href="/dataeditor/metaadd/{{ domain }}/{{ metaType }}/MetaRel">Add Relation</a>
+	<a id="addLinkLoAttr" class="btn btn-primary btn-sm pull-right fixed-top" href="/dataeditor/metaadd/{{ domain }}/{{ metaType }}/MetaLookupAttr">Add Lookup Attribute</a>
+	<a id="addLinkAttr" class="btn btn-primary btn-sm pull-right fixed-top" href="/dataeditor/metaadd/{{ domain }}/{{ metaType }}/MetaAttr">Add Attribute</a>
+  {% endif %}
+</nav>
+</div>

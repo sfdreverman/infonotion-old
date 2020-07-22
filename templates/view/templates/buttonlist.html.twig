@@ -6,7 +6,7 @@
 					{% if (key matches '/^\\d+$/') %}
 						{% for key,value in item %}
 							{% if (key==0) %}
-								<label class="btn btn-primary" {% if(loop.index == 1) %}name="firstLabel"{% endif %} id="{{ value }}" onclick="showView('{{ domain }}','{{ value }}','empty','View5d98dbc439a5a4.32197708','newtable',0);">
+								<label class="btn btn-primary" {% if(loop.index == 1) %}name="firstLabel"{% endif %} id="{{ value }}" onclick="showView('{{ domain }}','{{ value }}','empty','{{ theView['behavior'][0][1] }}','newtable',0);">
 									<input type="radio" name="options"> {{ value }} </input>
 								</label>
 							{% endif %}

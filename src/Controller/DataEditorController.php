@@ -10,6 +10,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use App\Service\NeoService;
 
 use Symfony\Component\Form\Extension\Core\Type\DateType;
+use Symfony\Component\Form\Extension\Core\Type\TimeType;
 use Symfony\Component\Form\Extension\Core\Type\DateTimeType;
 use Symfony\Component\Form\Extension\Core\Type\BirthdayType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
@@ -26,6 +27,8 @@ use Symfony\Component\Validator\Constraints\DateTime;
 class DataEditorController extends Controller
 {
 	private $redirecturl = '/frameN/databrowser/';
+	private $metaredirecturl = '/frameN/metaeditor/';
+	private $metaNames = ['MetaAttr' => 'an Attribute', 'MetaLookupAttr' => 'a Lookup Attribute', 'MetaRel' => 'a Relation'];
 	private $neolib = null;
 	
     public function __construct()
@@ -35,13 +38,22 @@ class DataEditorController extends Controller
 	
 	// Delete an instance of a metaType (Person, Company, etc...)
 	/**
-	 * @Route("/dataeditor/delete/{domain}/{metaType}/{instanceID}")
+	 * @Route("/dataeditor/delete/{domain}/{metaType}/{instanceID}", defaults={"redir" = ""})
 	 */	 
-	public function deleteInstance($domain,$metaType,$instanceID)
+	public function deleteInstance($domain,$metaType,$instanceID,$redir)
 	{
+		$redir = $redir=="" ? $this->redirecturl.$domain.'/'.$metaType : $redir.$domain;
 		$neocl = $this->getNeo4jClient();
 		$this->neolib->delete_instance($neocl, $metaType, $instanceID);
-		return $this->redirect($this->redirecturl.$domain.'/'.$metaType);
+		return $this->redirect($redir);
+	}
+
+	/**
+	 * @Route("/metaeditor/delete/{domain}/{metaType}/{instanceID}")
+	 */	 
+	public function deleteMetaThing($domain,$metaType,$instanceID)
+	{
+		return $this->deleteInstance($domain,$metaType,$instanceID,$this->metaredirecturl);
 	}	
 	
     // add a structure with attributes and relations
@@ -58,7 +70,7 @@ class DataEditorController extends Controller
 			$this->neolib-> add_metatype($neocl, $domain, $data);
 
 			//return new Response('<html><body> asdf</body>'.$redirect.'</html>' );
-            return $this->redirect($this->redirecturl.$domain.'/'.$data['typename']);
+            return $this->redirect($this->metaredirecturl.$domain.'/'.$data['typename']);
 		}
 		$redirect = $request->getUri();
 		return $this->render('data_editor/type/addtype.html.twig', array(
@@ -70,61 +82,135 @@ class DataEditorController extends Controller
 	/**
 	 * @Route("/dataeditor/deletetype/{domain}/{metaType}")
 	 */	 
-	public function removeMetaType(Request $request, $domain,$metaType)
+	public function removeMetaType($domain,$metaType)
 	{
 		$neocl = $this->getNeo4jClient();
 		$this->neolib->remove_MetaType($neocl, $domain, $metaType);
-		return $this->redirect($this->redirecturl.$domain);
+		return $this->redirect($this->metaredirecturl.$domain);
 	}
 	
 	/**
-     * @Route("/dataeditor/edit/{domain}/{instanceType}/{instanceID}", name="query_buildertest", defaults={"instanceID" = ""})
+     * @Route("/dataeditor/edit/{domain}/{instanceType}/{instanceID}", defaults={"instanceID" = "", "redir" = ""})
      */
-    public function AddEditInstance(Request $request, $domain, $instanceType, $instanceID)
+    public function AddEditInstance(Request $request, $domain, $instanceType, $instanceID, $redir)
     {
-		$titprefix = 'Add '; // assume add
+		$redir = $redir=="" ? $this->redirecturl.$domain.'/'.$instanceType.'/' : $redir.$domain;
+		$titprefix = $instanceID != "" ? 'Edit ' : 'Add ';
 		$neocl = $this->getNeo4jClient();
 	
+		$metaData = $this->getMetaData($domain, $instanceType);
+
+		$instanceData = $instanceID != "" ? $this->neolib->getInstanceEditData($neocl, $instanceType, $instanceID) : [];
+
+		$form = $this->getAddEditForm($metaData,$instanceData);
+	
+		$form->handleRequest($request);			
+					
+		if ($form->isSubmitted() && $form->isValid()) {
+			// get Return values
+			$returnValues = $form->getData();
+			// Write to Database
+			
+			$this->neolib->CreateOrMergeInstance($neocl, $domain, $instanceType, $metaData, $returnValues, $instanceID, []);
+			
+			//return new Response('<html><body>|done</body></html>' );
+			return $this->redirect($redir);
+		}
+
+        return $this->render('data_editor/instance/form.html.twig', [
+            'form' => $form->createView(),
+			'title'=> $titprefix.$instanceType,
+			'redir'=> $redir,
+        ]);
+    }
+	
+	/**
+     * @Route("/metaeditor/edit/{domain}/{instanceType}/{instanceID}", defaults={"instanceID" = ""})
+     */
+    public function AddEditMetaThing(Request $request, $domain, $instanceType, $instanceID)
+    {
+		return $this->AddEditInstance($request, $domain, $instanceType, $instanceID, $this->metaredirecturl);
+	}
+	
+	/**
+     * @Route("/dataeditor/metaadd/{domain}/{instanceType}/{metaTypeToAdd}")
+     */
+	public function AddMetaThing(Request $request, $domain, $instanceType, $metaTypeToAdd)
+	{
+		$titprefix = 'Add '.$this->metaNames[$metaTypeToAdd].' to ';
+		$neocl = $this->getNeo4jClient();
+	
+		$metaData = $this->getMetaData('FunctionalType', $metaTypeToAdd);
+
+		$form = $this->getAddEditForm($metaData,[]);
+	
+		$form->handleRequest($request);			
+					
+		if ($form->isSubmitted() && $form->isValid()) {
+			// get Return values
+			$returnValues = $form->getData();
+			// Write to Database
+			$this->neolib->CreateOrMergeInstance($neocl, $domain, $instanceType, $metaData, $returnValues, "", array('makedomain' => 'FunctionalType', 'makeMT' => $metaTypeToAdd));
+			
+			//return new Response('<html><body>|end of stuff</body></html>' );
+			return $this->redirect($this->metaredirecturl.$domain.'/'.$instanceType.'/');
+		}
+
+        return $this->render('data_editor/instance/form.html.twig', [
+            'form' => $form->createView(),
+			'title'=> $titprefix.$instanceType,
+			'redir'=> $this->metaredirecturl.$domain.'/'.$instanceType.'/',
+        ]);	
+	}
+	
+	private function getMetaData($domain, $instanceType)
+	{
+		$neocl = $this->getNeo4jClient();		
+		$metaData = [];
 		// get attribute and relation data
-		$metaAttrData = $this->queryResultToArr( $this->neolib-> get_typeattr($neocl, $instanceType, $domain) );
+		$metaData['Attr'] = $this->queryResultToArr( $this->neolib-> get_typeattr($neocl, $instanceType, $domain) );
 		//Add Name and Description in first position
-		array_unshift($metaAttrData,['type'=>'textarea','name'=>'description','desc'=>'The description of the '.$instanceType]);
-		array_unshift($metaAttrData,['type'=>'text','name'=>'name','desc'=>'The name of the '.$instanceType]);		
+		array_unshift($metaData['Attr'],['type'=>'textarea','name'=>'description','desc'=>'The description of the '.$instanceType]);
+		array_unshift($metaData['Attr'],['type'=>'text','name'=>'name','desc'=>'The name of the '.$instanceType]);		
 		//Find Relations
-		$metaRelData = $this->queryResultToArr( $this->neolib-> get_metaRels($neocl, $domain, $instanceType ) );			
+		$metaData['Rel'] = $this->queryResultToArr( $this->neolib-> get_metaRels($neocl, $domain, $instanceType ) );			
 		// Find Lookup Attributes
-		$metaLoAttrData = $this->queryResultToArr(  $this->neolib-> get_metaLookupAttrs($neocl, $domain, $instanceType) );		
-		$instanceData = [];
-		$returnValues = [];
+		$metaData['LoAttr'] = $this->queryResultToArr(  $this->neolib-> get_metaLookupAttrs($neocl, $domain, $instanceType) );		
+
+		return $metaData;
+	}
+	
+	private function getAddEditForm($metaData,$instanceData)
+	{
+		//Create Form Fields	
+		$returnValues = [];		
+        $form = $this->createFormBuilder($returnValues)
+            ->add('save', SubmitType::class, ['label' => 'Save']);
+
 		$tetc = [
 			'text' => TextType::class,
 			'textarea' => TextAreaType::class,
 			'relation' => ChoiceType::class,
 			'datetime-local' => DateTimeType::class,
 			'date' => DateType::class,
+			'time' => TimeType::class,
 			'bool' => ChoiceType::class,
 			'number' => IntegerType::class,
 			'lookupattr' => ChoiceType::class,
 		];
-
-		if ($instanceID != "") { // retrieve node information and add to params
-		  $titprefix = 'Edit ';
-		  $instanceData = $this->neolib->getInstanceEditData($neocl, $domain, $instanceType, $instanceID);
-		}
-
-		$nameData ='';
-		$descData ='';
-		if (array_key_exists('entity',$instanceData)) {
-			$nameData = $instanceData['entity']['name'];
-			if (array_key_exists('description',$instanceData['entity'])) {	$descData = $instanceData['entity']['description'];}
-		}		
 		
-		//Create Form Fields	
-        $form = $this->createFormBuilder($returnValues)
-            ->add('save', SubmitType::class, ['label' => 'Save']);
+		$tetcDisplay = [
+			'Text' => 'text',
+			'Text (multi-line)' => 'textarea',
+			'Datetime' => 'datetime-local',
+			'Date' => 'date',
+			'Yes/No' => 'bool',
+			'Value' => 'number',
+			'Time' => 'time',
+		];
 	
 		// Add Attributes to the form	
-		foreach($metaAttrData as $item)
+		foreach($metaData['Attr'] as $item)
 		{
 			// fill myData with record value
 			$myData = '';
@@ -140,9 +226,15 @@ class DataEditorController extends Controller
 			if ($item['type']=='bool')
 				{
 					$form = $form->add($item['name'], $tetc[$item['type']], [ 'required' => true,'label_attr' => ['class' =>'input-group-addon'], 'choices' => array('Yes' => true,'No' => false), 'empty_data' => false]);
-				} else{
-					// this is where the item is actually added
-					$form = $form->add($item['name'], $tetc[$item['type']], [ 'required' => false,'label_attr' => ['class' =>'input-group-addon']]);
+				} else
+				if ($item['name']=='attrtype')
+				{	//cheating a little here :-) by making the field named 'attrtype' a combo with all valid types
+					$form = $form->add($item['name'], $tetc['lookupattr'], [ 'required' => true,'label_attr' => ['class' =>'input-group-addon'], 'choices' => $tetcDisplay, 'empty_data' => false]);
+				}
+				else {
+					// this is where the all the normal items are actually added
+					$req = $item['name']=='name' ? true : false;
+					$form = $form->add($item['name'], $tetc[$item['type']], [ 'required' => $req,'label_attr' => ['class' =>'input-group-addon']]);
 				}
 				
 			if ($item['type']=='datetime-local')
@@ -173,7 +265,7 @@ class DataEditorController extends Controller
 		}
 		
 		// Add Lookups to the form
-		foreach($metaLoAttrData as $item)
+		foreach($metaData['LoAttr'] as $item)
 		{
 			// Get choices
 			$arr = [];
@@ -196,7 +288,7 @@ class DataEditorController extends Controller
 		
 		
 		// Add Relations to the form
-		foreach($metaRelData as $item)
+		foreach($metaData['Rel'] as $item)
 		{
 			// Get choices
 			$arr = [];
@@ -218,26 +310,8 @@ class DataEditorController extends Controller
 			}
 		}
 		
-        $form=$form->getForm();
-		
-		$form->handleRequest($request);			
-					
-		if ($form->isSubmitted() && $form->isValid()) {
-			// get Return values
-			$returnValues = $form->getData();
-			// Write to Database
-			$this->neolib->CreateOrMergeInstance($neocl, $domain, $instanceType, $metaAttrData, $metaLoAttrData, $metaRelData, $returnValues, $instanceID);
-			
-			//return new Response('<html><body> asdf</body></html>' );
-			return $this->redirect($this->redirecturl.$domain.'/'.$instanceType.'/');
-		}
-
-        return $this->render('data_editor/instance/form.html.twig', [
-            'form' => $form->createView(),
-			'title'=> $titprefix.$instanceType,
-			'redir'=> $this->redirecturl.$domain.'/'.$instanceType.'/',
-        ]);
-    }
+        return $form->getForm();
+	}
 	
 	private function retrieverelnameid($relid, $domain, $instanceType, $isLoAttr)
 	{
