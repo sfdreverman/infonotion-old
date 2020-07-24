@@ -6,16 +6,16 @@
 	<span class="h3 caption" id="ItemName">{{ entity['name']|nl2br }}</span>
 	{% if entity['in_metaType'] starts with 'Meta' %}
 		{% set refprefix = 'meta' %}
-		{% set useddomain = domain %}
+		{% set domainreferer = '?referer=' ~ domain %}
 	{% else %}
 		{% set refprefix = 'data' %} 
-		{% set useddomain = entity['domain'] %}
+		{% set domainreferer = "" %}
 	{% endif %}
 	{% if theView['canDelete'] %}
-		<a id="deleteLink" class="btn btn-primary btn-sm pull-right" href="/{{ refprefix }}editor/delete/{{ useddomain }}/{{entity['in_metaType']}}/{{ entity['in_id'] }}">Delete</a>
+		<a id="deleteLink" class="btn btn-primary btn-sm pull-right" href="/{{ refprefix }}editor/delete/{{ entity['domain'] }}/{{entity['in_metaType']}}/{{ entity['in_id'] }}{{ domainreferer }}">Delete</a>
 	{% endif %}
 	{% if theView['canEdit'] %}
-		<a id="editLink" class="btn btn-primary btn-sm pull-right" href="/{{ refprefix }}editor/edit/{{ useddomain }}/{{entity['in_metaType']}}/{{ entity['in_id'] }}">Edit</a>
+		<a id="editLink" class="btn btn-primary btn-sm pull-right" href="/{{ refprefix }}editor/edit/{{ entity['domain'] }}/{{entity['in_metaType']}}/{{ entity['in_id'] }}{{ domainreferer }}">Edit</a>
 	{% endif %}
 </div>
 

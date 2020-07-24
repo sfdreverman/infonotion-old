@@ -42,7 +42,7 @@ class DataEditorController extends Controller
 	 */	 
 	public function deleteInstance($domain,$metaType,$instanceID,$redir)
 	{
-		$redir = $redir=="" ? $this->redirecturl.$domain.'/'.$metaType : $redir.$domain;
+		$redir = $redir=="" ? $this->redirecturl.$domain.'/'.$metaType : $redir;
 		$neocl = $this->getNeo4jClient();
 		$this->neolib->delete_instance($neocl, $metaType, $instanceID);
 		return $this->redirect($redir);
@@ -53,7 +53,8 @@ class DataEditorController extends Controller
 	 */	 
 	public function deleteMetaThing($domain,$metaType,$instanceID)
 	{
-		return $this->deleteInstance($domain,$metaType,$instanceID,$this->metaredirecturl);
+		$refererdomain = $request->query->get('referer');
+		return $this->deleteInstance($domain,$metaType,$instanceID,$this->metaredirecturl.$refererdomain.'/');
 	}	
 	
     // add a structure with attributes and relations
@@ -94,7 +95,7 @@ class DataEditorController extends Controller
      */
     public function AddEditInstance(Request $request, $domain, $instanceType, $instanceID, $redir)
     {
-		$redir = $redir=="" ? $this->redirecturl.$domain.'/'.$instanceType.'/' : $redir.$domain;
+		$redir = $redir=="" ? $this->redirecturl.$domain.'/'.$instanceType.'/' : $redir;
 		$titprefix = $instanceID != "" ? 'Edit ' : 'Add ';
 		$neocl = $this->getNeo4jClient();
 	
@@ -116,7 +117,7 @@ class DataEditorController extends Controller
 			//return new Response('<html><body>|done</body></html>' );
 			return $this->redirect($redir);
 		}
-
+		
         return $this->render('data_editor/instance/form.html.twig', [
             'form' => $form->createView(),
 			'title'=> $titprefix.$instanceType,
@@ -129,7 +130,8 @@ class DataEditorController extends Controller
      */
     public function AddEditMetaThing(Request $request, $domain, $instanceType, $instanceID)
     {
-		return $this->AddEditInstance($request, $domain, $instanceType, $instanceID, $this->metaredirecturl);
+		$refererdomain = $request->query->get('referer');
+		return $this->AddEditInstance($request, $domain, $instanceType, $instanceID, $this->metaredirecturl.$refererdomain.'/');
 	}
 	
 	/**
@@ -155,7 +157,7 @@ class DataEditorController extends Controller
 			//return new Response('<html><body>|end of stuff</body></html>' );
 			return $this->redirect($this->metaredirecturl.$domain.'/'.$instanceType.'/');
 		}
-
+		
         return $this->render('data_editor/instance/form.html.twig', [
             'form' => $form->createView(),
 			'title'=> $titprefix.$instanceType,
@@ -323,7 +325,7 @@ class DataEditorController extends Controller
 			if (($instanceType=='MetaType') && ($domain =='FunctionalType'))
 			{	$totypeinstances = $this->neolib-> get_allMetaTypes($neocl);	}
 			else
-			{	$totypeinstances = $this->neolib-> get_instancenames($neocl, $domain, $instanceType,0);	}
+			{	$totypeinstances = $this->neolib-> get_instancenames($neocl, $domain, $instanceType);	}
 			if ($isLoAttr) { $tti2 = $this->queryResultToKeyKey($totypeinstances); }
 				      else { $tti2 = $this->queryResultToKeyVal($totypeinstances); }
 		} else

@@ -142,10 +142,13 @@ class NeoService
 	}	
 	
 	// Retrieve all instances of a $label. (Domain or Person) Returns name and id. orders by name.
-	public function get_instancenames($neocl, $domain, $label, $skip)
+	public function get_instancenames($neocl, $domain, $label)
 	{
-		$q = 'MATCH (n:'.$label.') where n.domain={domain} RETURN n.name AS name, n.in_id as id, n.domain as domain ORDER BY name SKIP '.$skip;
-		return $neocl->run($q, ["domain" => $domain]);
+		// no inheritance:
+		// $q = 'MATCH (n:'.$label.') where n.domain={domain} RETURN n.name AS name, n.in_id as id, n.domain as domain ORDER BY name';
+		// with inheritance:
+		$q = 'MATCH (n:'.$domain.' {name:{label}}) OPTIONAL MATCH (n)<-[:INHERITS*]-(r) With n.name+COLLECT(r.name) as collect MATCH (n) where labels(n)[0] IN collect AND n.domain={domain} RETURN n.name AS name, n.in_id as id, n.domain as domain ORDER BY name';
+		return $neocl->run($q, ["label" => $label, "domain" => $domain]);
 	}
 	
 	// Compiles retrieved data into a Neo4j query to create/merge a typed instance.
