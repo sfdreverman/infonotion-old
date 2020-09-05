@@ -44,7 +44,11 @@
 						{% set val = item %}
 					{% endif %}		
 				{% endif %}
-				<tr><th scope='row'>{{ key }} </th><td> {{ val|raw|nl2br }} </td></tr>
+				{% if val is iterable%}
+					<tr><th scope='row'>{{ key }} </th><td> {{ val|join(',') }} </td></tr>
+				{% else%}
+					<tr><th scope='row'>{{ key }} </th><td> {{ val|raw|nl2br }} </td></tr>
+				{% endif %}
 			{% endif %}
 		  {% endif %}
 		{% endfor %}

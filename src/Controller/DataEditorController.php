@@ -51,7 +51,7 @@ class DataEditorController extends Controller
 	/**
 	 * @Route("/metaeditor/delete/{domain}/{metaType}/{instanceID}")
 	 */	 
-	public function deleteMetaThing($domain,$metaType,$instanceID)
+	public function deleteMetaThing(Request $request, $domain,$metaType,$instanceID)
 	{
 		$refererdomain = $request->query->get('referer');
 		return $this->deleteInstance($domain,$metaType,$instanceID,$this->metaredirecturl.$refererdomain.'/');
