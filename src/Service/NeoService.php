@@ -136,10 +136,19 @@ class NeoService
 		// no inheritance:
 		// $q = 'MATCH (n:'.$label.')-[:HASREL]->(a:MetaRel)-[:TOTYPE]-(t) WHERE n.'.$attrName.'= \''.$instData.'\' RETURN a.name AS name, t.name as totype, a.in_id as relid, a.iscomp as iscomp, a.multi as multi, labels(t)[0] as domain,a.description as desc ORDER BY a.name';
 		// with inheritance:
-		$retstatement = 'RETURN a.name AS name, t.name as totype, a.in_id as relid, a.iscomp as iscomp, a.multi as multi, labels(t)[0] as domain,a.description as desc ORDER BY a.name';
-		$q = 'MATCH (n:'.$label.' {name:\''.$instData.'\'})-[:HASREL]->(a:MetaRel)-[:TOTYPE]-(t) '.$retstatement.' UNION MATCH (n:'.$label.' {name:\''.$instData.'\'})-[:INHERITS*]->()-[:HASREL]->(a:MetaRel)-[:TOTYPE]-(t) '.$retstatement;		
+		$istaxo = ' OPTIONAL MATCH (t)-[:INHERITS]->(tax:FunctionalType {name:\'TaxonomyItem\'}) ';
+		$retstatement = 'RETURN a.name AS name, t.name as totype, a.in_id as relid, a.iscomp as iscomp, a.multi as multi, labels(t)[0] as domain, count(tax)>0 as isTaxo, a.description as desc ORDER BY a.name';
+		$q = 'MATCH (n:'.$label.' {name:\''.$instData.'\'})-[:HASREL]->(a:MetaRel)-[:TOTYPE]-(t) '.$istaxo.$retstatement.' UNION MATCH (n:'.$label.' {name:\''.$instData.'\'})-[:INHERITS*]->()-[:HASREL]->(a:MetaRel)-[:TOTYPE]-(t) '.$istaxo.$retstatement;		
 		return $neocl->run($q);
 	}	
+	
+	// Retrieve all instances (TaxonomyItems) in Taxonomy $label. Must return same stuff as get_instancenames for form compatibility (for now)
+	public function get_taxoinstancenames($neocl, $domain, $label)
+	{
+		$q = 'MATCH (a:'.$label.') WHERE NOT((a)-->()) WITH a RETURN a.name AS name, a.in_id as id, a.domain as domain UNION MATCH p = (a:'.$label.')-[*]->(b) WHERE a.domain={domain} AND NOT((b)-->()) WITH a, b, NODES(p) AS pts, LENGTH(p) AS n RETURN substring(REDUCE(s = \'\', i IN RANGE(0, n-1) | pts[i].name +  \', \' + s),0,255) AS name, a.in_id as id, a.domain as domain ORDER BY name, n';
+		return $neocl->run($q, ["label" => $label, "domain" => $domain]);
+	}
+	
 	
 	// Retrieve all instances of a $label. (Domain or Person) Returns name and id. orders by name.
 	public function get_instancenames($neocl, $domain, $label)

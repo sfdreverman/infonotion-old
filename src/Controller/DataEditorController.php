@@ -271,7 +271,7 @@ class DataEditorController extends Controller
 		{
 			// Get choices
 			$arr = [];
-			$arr = $this->retrieverelnameid($item['relid'], $item['domain'], $item['fromtype'], true);
+			$arr = $this->retrieverelnameid($item['relid'], $item['domain'], $item['fromtype'], true, false);
 			$vals = array();
 			if (array_key_exists('relprops',$instanceData) && array_key_exists($item['name'],$instanceData['relprops']))
 			{
@@ -294,7 +294,7 @@ class DataEditorController extends Controller
 		{
 			// Get choices
 			$arr = [];
-			$arr = $this->retrieverelnameid($item['relid'], $item['domain'], $item['totype'], false);
+			$arr = $this->retrieverelnameid($item['relid'], $item['domain'], $item['totype'], false, $item['isTaxo']);
 			$chosen = [];
 			$vals = array();
 			if (array_key_exists('relprops',$instanceData) && array_key_exists($item['name'],$instanceData['relprops']))
@@ -315,19 +315,27 @@ class DataEditorController extends Controller
         return $form->getForm();
 	}
 	
-	private function retrieverelnameid($relid, $domain, $instanceType, $isLoAttr)
+	private function retrieverelnameid($relid, $domain, $instanceType, $isLoAttr, $isTaxo)
 	{
 		$neocl = $this->getNeo4jClient();		
 		$tti2 = [];
 		if ($instanceType != 'instanceType')
 		{
-			$attrArray = $this->neolib-> get_relattr($neocl,$relid);
-			if (($instanceType=='MetaType') && ($domain =='FunctionalType'))
-			{	$totypeinstances = $this->neolib-> get_allMetaTypes($neocl);	}
-			else
-			{	$totypeinstances = $this->neolib-> get_instancenames($neocl, $domain, $instanceType);	}
-			if ($isLoAttr) { $tti2 = $this->queryResultToKeyKey($totypeinstances); }
-				      else { $tti2 = $this->queryResultToKeyVal($totypeinstances); }
+			if ($isTaxo == false)
+			{
+				//$attrArray = $this->neolib-> get_relattr($neocl,$relid);
+				if (($instanceType=='MetaType') && ($domain =='FunctionalType'))
+				{	$totypeinstances = $this->neolib-> get_allMetaTypes($neocl);	}
+				else
+				{	$totypeinstances = $this->neolib-> get_instancenames($neocl, $domain, $instanceType);	}
+				if ($isLoAttr) { $tti2 = $this->queryResultToKeyKey($totypeinstances); }
+						  else { $tti2 = $this->queryResultToKeyVal($totypeinstances); }
+			} else
+			{
+				// get taxonomy values as list of strings (heavily simplified on purpose to fit current automated form generation!)
+				$totypeinstances = $this->neolib->get_taxoinstancenames($neocl, $domain, $instanceType);
+				$tti2 = $this->queryResultToKeyVal($totypeinstances);
+			}
 		} else
 		{   // instanceType triggers return of all types in all domains
 			$tti2 = $this->queryResultToKeyVal($this->neolib->get_allinstanceTypes($neocl));
