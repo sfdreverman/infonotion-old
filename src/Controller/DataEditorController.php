@@ -175,7 +175,14 @@ class DataEditorController extends Controller
 		array_unshift($metaData['Attr'],['type'=>'textarea','name'=>'description','desc'=>'The description of the '.$instanceType]);
 		array_unshift($metaData['Attr'],['type'=>'text','name'=>'name','desc'=>'The name of the '.$instanceType]);		
 		//Find Relations
-		$metaData['Rel'] = $this->queryResultToArr( $this->neolib-> get_metaRels($neocl, $domain, $instanceType ) );			
+		$metaData['Rel'] = $this->queryResultToArr( $this->neolib-> get_metaRels($neocl, $domain, $instanceType ) );
+		// replace TaxonomyItem with relation to self (for defining taxonomies)
+		for ($i = 0; $i < count($metaData['Rel']); $i++) {
+			if ($metaData['Rel'][$i]['name']=='hasParent' && $metaData['Rel'][$i]['totype']=='TaxonomyItem') {
+				$metaData['Rel'][$i]['totype']=$instanceType;
+				$metaData['Rel'][$i]['domain']=$domain;
+			}
+		}
 		// Find Lookup Attributes
 		$metaData['LoAttr'] = $this->queryResultToArr(  $this->neolib-> get_metaLookupAttrs($neocl, $domain, $instanceType) );		
 
@@ -317,7 +324,7 @@ class DataEditorController extends Controller
 	
 	private function retrieverelnameid($relid, $domain, $instanceType, $isLoAttr, $isTaxo)
 	{
-		$neocl = $this->getNeo4jClient();		
+		$neocl = $this->getNeo4jClient();	
 		$tti2 = [];
 		if ($instanceType != 'instanceType')
 		{
